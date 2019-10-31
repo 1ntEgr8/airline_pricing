@@ -73,4 +73,3 @@ function parseResponse(jsonResponse) {
   const trip = new Trip(jsonResponse);
 }
 
-fetchPricingData();

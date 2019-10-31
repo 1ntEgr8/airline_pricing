@@ -4,6 +4,7 @@ import atob from "atob";
 import { Trip } from "./Trip";
 
 const URL = "https://matrix.itasoftware.com";
+
 (async () => {
     const browser = await puppeteer.launch({
         headless:false, 
@@ -12,10 +13,9 @@ const URL = "https://matrix.itasoftware.com";
     });
     const page = (await browser.pages())[0];
     await page.goto(URL)
-        .then(() => {
-            searchFlight(page, testQuery); 
+        .then(async () => {
+            await searchFlight(page, testQuery); 
         });
-    await interceptRequestsForPage(page);
 })();
 
 const querySchema = {
@@ -48,9 +48,6 @@ async function searchFlight(page, query) {
 async function type(text, page, id) {
     await page.$(id)
         .then(async elementHandle => {
-            // await elementHandle.evaluate((node, text) => {
-            //     node.value = text; 
-            // }, text);
             await elementHandle.type(text);
         })
 }
