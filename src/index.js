@@ -13,9 +13,10 @@ const URL = "https://matrix.itasoftware.com";
     });
     const page = (await browser.pages())[0];
     await page.goto(URL)
-        .then(async () => {
-            await searchFlight(page, testQuery); 
+        .then(() => {
+            searchFlight(page, testQuery); 
         });
+    await interceptRequestsForPage(page);
 })();
 
 const querySchema = {
@@ -42,7 +43,6 @@ async function searchFlight(page, query) {
         await type(query[key], page, querySchema[key]);
     }
     await page.click("#searchButton-0");
-    await interceptRequestsForPage(page);
 }
 
 async function type(text, page, id) {
@@ -71,7 +71,7 @@ async function interceptRequestsForPage(page) {
         client.send("Network.continueInterceptedRequest", {
             "interceptionId": res.interceptionId
         });
-
+        console.log("i am here");
         const trip = new Trip(JSON.parse(atob(response.body)));
     });
 }
