@@ -52,7 +52,7 @@ async function searchFlight(query) {
 
     // TODO: move closing logic to another function
     console.info("Closed instance");
-    await browser.close();
+    //await browser.close();
   });
 }
 

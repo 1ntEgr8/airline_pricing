@@ -1,13 +1,28 @@
 export class Flight {
-    constructor(data) {
+    constructor(data, parser) {
         this.raw = data;
         if (!this.raw) {
             throw new Error("Invalid data passed to constructor of Flight.");
         }
-        this._parseData();
+        parser(this);
     }
 
-    _parseData() {
+    _parse() {
+        // dispatch parsing based on provider
+        switch (this.who) {
+            case Providers.GFLIGHTS: {
+                GFLIGHTS.parseFlight(this);
+            } break;
+            case Providers.ITA: {
+                ITA.parseFlight(this);
+            } break;
+            default: {
+                throw new Error(`Airline ticket provider ${who} is not supported yet`);
+            }
+        }
+    }
+
+    _parse() {
         // TODO: advisories
 
         this.price = this.raw[1][1];
@@ -27,9 +42,6 @@ export class Flight {
         this.arrivalDate = this._getDateAndTime(this.raw[2][2][0][4]);
         this.flightNumbers = this.raw[2][2][0][7];
         this.stops = this._getStops(this.raw[2][2][0][8]);
-        // this.advisories = this.raw[2][2][0][12][2][1];
-        this.code = this.raw[5];
-        // console.log(this.raw[2][3]); MIGHT BE IMPORTANT TAKE A LOOK LATER
     }
 
     _getDateAndTime(timeStr) {

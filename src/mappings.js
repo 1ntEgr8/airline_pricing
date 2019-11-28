@@ -60,7 +60,6 @@ export const ITA = {
     "arrival_date": raw => raw[2][2][0][4],
     "flight_numbers": raw => raw[2][2][0][7],
     "stops": raw => raw[2][2][0][8],
-    "code": raw => raw[5]
 };
 
 export const GFLIGHTS = {
@@ -74,4 +73,6 @@ export const GFLIGHTS = {
 
     an extensible framework that lets you add more
     sites to parse in the future
+
+    same schema to store data on the db
 */
