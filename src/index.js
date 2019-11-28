@@ -1,77 +1,144 @@
-require('babel-polyfill');
-import puppeteer from 'puppeteer';
+require("babel-polyfill");
+import puppeteer from "puppeteer";
 import atob from "atob";
 import { Trip } from "./Trip";
+import { read } from "./input";
+import { Providers } from "./providers";
+import { gflights_mappings, GFLIGHTS } from "./mappings";
 
-const URL = "https://matrix.itasoftware.com";
+// const URL = "https://matrix.itasoftware.com";
+// const URLPATTERN = "https://matrix.itasoftware.com/search";
 
-(async () => {
-    const browser = await puppeteer.launch({
-        headless:false, 
-        defaultViewport:null,
-        args: ['--window-size=1920,1170','--window-position=0,0']
-    });
-    const page = (await browser.pages())[0];
-    await page.goto(URL)
-        .then(() => {
-            searchFlight(page, testQuery); 
-        });
-    await interceptRequestsForPage(page);
-})();
+let counter = 0; // keeping track of number of requests made
 
-const querySchema = {
-    "departing-from": "#cityPair-orig-0",
-    "destination": "#cityPair-dest-0",
-    "outbound-date": "#cityPair-outDate-0",
-    "return-date": "#cityPair-retDate-0",
-};
+const URL = "https://www.google.com/flights";
+const URLPATTERN = "https://www.google.com/async/flights/search*";
+const DEVMODE = false;
+const SLOMO = 75;
+const BATCHSIZE = 5;
+const mappings = gflights_mappings;
 
-const testQuery = {
-    "departing-from": "ATL",
-    "destination": "JFK",
-    "outbound-date": "11/28/2019",
-    "return-date": "12/01/2019"
-};
-
-async function searchFlight(page, query) {
-    switch(query["type"]) {
-        case "one-way trip": break;
-        case "multi-city trip": break;
-    }
-
-    for (let key in query) {
-        await type(query[key], page, querySchema[key]);
-    }
-    await page.click("#searchButton-0");
+function init() {
+  read(processQueries); 
 }
 
-async function type(text, page, id) {
-    await page.$(id)
-        .then(async elementHandle => {
-            await elementHandle.type(text);
-        })
+async function processQueries(queries) {
+  let promises = [];
+  let reqCounter = 0;
+  for (let query of queries) {
+    reqCounter++;
+    if (reqCounter > BATCHSIZE) {
+      await Promise.all(promises);
+      promises = [];
+      reqCounter = 0;
+    } else {
+      promises.push(searchFlight(query));
+    }
+  }
+  await Promise.all(promises);
+}
+
+async function searchFlight(query) {
+  const browser = await createBrowser();
+  const page = await createPage(browser);
+
+  await page.goto(URL, {
+    waitUntil: 'domcontentloaded'
+  });
+
+  await page.waitForSelector("div[role='search']").then(async () => {
+    await interceptRequestsForPage(page);
+    await fillForm(page, query);
+
+    // TODO: move closing logic to another function
+    console.info("Closed instance");
+    await browser.close();
+  });
+}
+
+async function fillForm(page, query, who = "gflights") {
+  switch (who) {
+    case "gflights": {
+      for (let key in query) {
+        if (key == "type") {
+          // fill in code here
+        } else {
+          if (query[key]) {
+            if (key != "return_date") {
+              await page.click(mappings[`${key}_div`]);
+            }
+            await type(query[key], page, mappings[key])
+              .then(async () => {
+                await page.click(mappings[key]);
+                await page.keyboard.press('Enter');
+                if (key == "return_date") {
+                  await page.click("g-raised-button[data-flt-ve='done']");
+                }
+              });
+          }
+        }
+      }
+    } break;
+    default: console.error("Couldn't recognize flight price aggregator")
+  }
+}
+
+async function type(text, page, selector) {
+  await page.$(selector).then(async elementHandle => {
+    if (elementHandle) {
+      await elementHandle.type(text);
+    }
+  });
 }
 
 async function interceptRequestsForPage(page) {
-    const client = await page.target().createCDPSession();
+  const client = await page.target().createCDPSession();
 
-    await client.send("Network.enable");
+  await client.send("Network.enable");
 
-    await client.send("Network.setRequestInterception", {
-        patterns: [{
-            urlPattern: "https://matrix.itasoftware.com/search",
-            interceptionStage: "HeadersReceived"
-        }]
-    });
+  await client.send("Network.setRequestInterception", {
+    patterns: [
+      {
+        urlPattern: URLPATTERN,
+        interceptionStage: "HeadersReceived",
+        resourceType: "XHR"
+      }
+    ]
+  });
 
-    client.on("Network.requestIntercepted", async (res) => {
-        const response = await client.send("Network.getResponseBodyForInterception", {
-            "interceptionId": res.interceptionId
-        });
-        client.send("Network.continueInterceptedRequest", {
-            "interceptionId": res.interceptionId
-        });
-        console.log("i am here");
-        const trip = new Trip(JSON.parse(atob(response.body)));
-    });
+  client.on("Network.requestIntercepted", async res => {
+    const response = await client.send(
+      "Network.getResponseBodyForInterception",
+      {
+        interceptionId: res.interceptionId
+      }
+    );
+
+    // await client.send("Network.continueInterceptedRequest", {
+    //   interceptionId: res.interceptionId
+    // });
+
+    const formattedResString = atob(response.body).substring(4);
+    const trip = new Trip(JSON.parse(formattedResString), Providers.GFLIGHTS);
+    await page.close();
+  });
+}
+
+init();
+
+// helpers
+
+async function createBrowser() {
+  return await puppeteer.launch({
+    headless: !DEVMODE,
+    defaultViewport: null,
+    args: ["--window-size=1920,1170", "--window-position=0,0"],
+    slowMo: SLOMO 
+  });
+}
+
+async function createPage(browser) {
+  const page = await broswer.newPage();
+  console.info(`Opened page #${counter++}`);
+  return page;
 }

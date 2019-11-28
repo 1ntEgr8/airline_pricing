@@ -1,0 +1,16 @@
+Name,Surname,Age,Gender
+John,Snow,26,M
+Clair,White,33,F
+Fancy,Brown,78,F
+
+round_trip,ATL,MIA,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,LAX,ORD,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,AUS,SEA,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,ATL,JFK,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,ATL,MIA,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,LAX,ORD,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,AUS,SEA,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,ATL,JFK,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,ATL,MIA,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,LAX,ORD,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,AUS,SEA,11/28/2019,,,12/01/2019,,,,,,,
