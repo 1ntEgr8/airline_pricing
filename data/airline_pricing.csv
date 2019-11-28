@@ -1,2 +1,12 @@
 type,departing_from,destination,outbound_date,outbound_date_type,outbound_date_flexibility,return_date,return_date_type,return_date_flexibility,cabin,stops,extra_stops,currency,sales_city
+round_trip,ATL,JFK,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,LAX,ORD,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,AUS,SEA,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,ATL,JFK,11/28/2019,,,12/01/2019,,,,,,,
 round_trip,ATL,MIA,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,LAX,ORD,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,AUS,SEA,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,ATL,JFK,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,ATL,MIA,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,LAX,ORD,11/28/2019,,,12/01/2019,,,,,,,
+round_trip,AUS,SEA,11/28/2019,,,12/01/2019,,,,,,,

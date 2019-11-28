@@ -52,7 +52,6 @@ async function searchFlight(query) {
 
     // TODO: move closing logic to another function
     console.info("Closed instance");
-    //await browser.close();
   });
 }
 
@@ -114,13 +113,13 @@ async function interceptRequestsForPage(page) {
       }
     );
 
-    // await client.send("Network.continueInterceptedRequest", {
-    //   interceptionId: res.interceptionId
-    // });
+    await client.send("Network.continueInterceptedRequest", {
+      interceptionId: res.interceptionId
+    });
 
     const formattedResString = atob(response.body).substring(4);
     const trip = new Trip(JSON.parse(formattedResString), Providers.GFLIGHTS);
-    await page.close();
+    await client.send("Network.disable");
   });
 }
 
