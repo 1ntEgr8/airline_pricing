@@ -138,7 +138,7 @@ async function createBrowser() {
 }
 
 async function createPage(browser) {
-  const page = await broswer.newPage();
+  const page = await browser.newPage();
   console.info(`Opened page #${counter++}`);
   return page;
 }
